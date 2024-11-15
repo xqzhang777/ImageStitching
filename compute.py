@@ -192,7 +192,7 @@ def symmetrize_project_align_one_map(map_info, image_query, image_query_label, i
 
     return (flip, scale, rotation_angle, shift_cartesian, similarity_score, aligned_image_moving, image_query_label, proj, label)
 
-def itk_stitch():
+def itk_stitch(temp_dir):
 	# ==========================================================================
 	#
 	#   Copyright NumFOCUS
@@ -217,9 +217,9 @@ def itk_stitch():
 	import tempfile
 	from pathlib import Path
 	
-	input_path = Path("subset/")
-	output_path = Path("out/")
-	out_file = Path("itk_stitched.mrc")
+	input_path = Path(temp_dir)
+	output_path = Path(temp_dir)
+	out_file = Path(temp_dir+"/itk_stitched.mrc")
 	if not out_file.is_absolute():
 	  out_file = (output_path / out_file).resolve()
 	
@@ -290,6 +290,7 @@ def itk_stitch():
 	  index = stage_tiles.LinearIndexToNDIndex(t)
 	  resampleF.SetTileTransform(index, montage.GetOutputTransform(index))
 	resampleF.Update()
-	itk.imwrite(resampleF.GetOutput(), str(out_file))
+	#itk.imwrite(resampleF.GetOutput(), str(out_file))
 	print("Resampling complete")
+	return np.array(resampleF.GetOutput())
 	
