@@ -405,17 +405,21 @@ def update_stitched_image_displayed():
     images_displayed = []
     images_displayed_labels = []
     images_displayed_links = []
+    ny,nx = np.shape(selected_images_rotated_shifted_cropped()[0])
     
     from PIL import Image
+    import tempfile
     with tempfile.TemporaryDirectory() as temp_dir:
-        for i, img in enumerate(selected_images_rotated_shifted_cropped()):
-            tmp = img
-            tmp = np.uint8((tmp-np.min(tmp))/(np.max(tmp)-np.min(tmp))*255)
-            tmp_imf=Image.fromarray(tmp,"L")
-            tmp_imf.save(f"{temp_dir}/{str(i)}.png")
-        with open(f"{temp_dir}/TileConfiguration.txt")
+        with open(temp_dir+"/TileConfiguration.txt","w") as tc:
+            tc.write("dim = 2\n\n")
+            for i, img in enumerate(selected_images_rotated_shifted_cropped()):
+                tmp = img
+                tmp = np.uint8((tmp-np.min(tmp))/(np.max(tmp)-np.min(tmp))*255)
+                tmp_imf=Image.fromarray(tmp,"L")
+                tmp_imf.save(temp_dir+"/"+str(i)+".png")
+                tc.write(str(i)+".png; ; ("+ str(i*nx) + ", 0.0)\n")
 
-    #result = compute.itk_stitch()
+        result = compute.itk_stitch(temp_dir)
     
     images_displayed.append(result)
     images_displayed_labels.append(f"Stitched image:")
